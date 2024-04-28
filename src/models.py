@@ -110,7 +110,7 @@ class Favorites(db.Model):
         return {
             "id": self.id,
             "user_id": self.user_id,  
-            "person_id": self.person_id,  
+            "people_id": self.people_id,  
             "planet_id": self.planet_id, 
             "vehicle_id": self.vehicle_id
         }

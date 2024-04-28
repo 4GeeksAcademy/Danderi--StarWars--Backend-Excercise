@@ -113,6 +113,7 @@ def get_single_vehicle(vehicle_id):
     except:
         return jsonify({"message": "Server error"}), 500
 
+
 @app.route('/users', methods=['GET'])
 def get_users():
     try:
@@ -128,20 +129,136 @@ def get_users():
 @app.route('/users/favorites', methods=['GET'])
 def get_user_favorites():
     try:
-        # Suponiendo que el usuario actual está autenticado y su ID se obtiene de alguna manera
-        user_id = request.args.get('user_id')  # Aquí deberías obtener el ID del usuario actual de alguna manera
-        print(user_id)
-        # Buscar todos los favoritos del usuario actual
-        user_favorites = Favorites.query.filter_by(user_id=user_id).all()
-
-        # Serializar los resultados
-        serialized_favorites = [favorite.serialize() for favorite in user_favorites]
+        user_id = request.args.get('user_id')  # Se debe asignar un params desde el postman con el id del user que tiene favoritos
+        
+        user_favorites = Favorites.query.filter_by(user_id=user_id).all() # Buscar todos los favoritos del usuario actual
+        
+        serialized_favorites = [favorite.serialize() for favorite in user_favorites] # Serializar los resultados
 
         return jsonify(serialized_favorites), 200
     except:
         return jsonify({'message': 'Server error'}), 500
 
 
+@app.route('/favorite/planet/<int:planet_id>', methods=['POST'])  
+def add_fav_planet(planet_id):
+        try:
+            user_id = request.args.get('user_id')
+            existing_favorite = Favorites.query.filter_by(user_id=user_id, planet_id=planet_id).first()
+
+            if existing_favorite:
+                return jsonify({"message": "Is already a favorite planet of the user"}), 400
+            
+            planet = Planets.query.get(planet_id)
+            if not planet:
+                return jsonify({"message": "Planet does not exist"}), 404
+            
+            new_favorite = Favorites(user_id=user_id, planet_id=planet_id)
+            db.session.add(new_favorite)
+            db.session.commit()
+            return jsonify({"message": "Planet set as favorite"}), 200
+
+        except Exception as e:
+            print(str(e))
+            return jsonify({"message": "Server error"}), 500
+
+
+@app.route('/favorite/people/<int:people_id>', methods=['POST'])
+def add_fav_people(people_id):
+        try:
+            user_id = request.args.get('user_id')
+            existing_favorite = Favorites.query.filter_by(user_id=user_id, people_id=people_id).first()
+
+            if existing_favorite:
+                return jsonify({"message": "Is already a favorite people of the user"}), 400
+            
+            people = People.query.get(people_id)
+            if not people:
+                return jsonify({"message": "People does not exist"}), 404
+            
+            new_favorite = Favorites(user_id=user_id, people_id=people_id)
+            db.session.add(new_favorite)
+            db.session.commit()
+            return jsonify({"message": "people set as favorite"}), 200
+
+        except Exception as e:
+            print(str(e))
+            return jsonify({"message": "Server error"}), 500
+
+
+@app.route('/favorite/vehicle/<int:vehicle_id>', methods=['POST'])
+def add_fav_vehicles(vehicle_id):
+        try:
+            user_id = request.args.get('user_id')
+            existing_favorite = Favorites.query.filter_by(user_id=user_id, vehicle_id=vehicle_id).first()
+
+            if existing_favorite:
+                return jsonify({"message": "Is already a favorite vehicle of the user"}), 400
+            
+            vehicle = Vehicles.query.get(vehicle_id)
+            if not vehicle:
+                return jsonify({"message": "Vehicle does not exist"}), 404
+            
+            new_favorite = Favorites(user_id=user_id, vehicle_id=vehicle_id)
+            db.session.add(new_favorite)
+            db.session.commit()
+            return jsonify({"message": "vehicles set as favorite"}), 200
+
+        except Exception as e:
+            print(str(e))
+            return jsonify({"message": "Server error"}), 500
+
+@app.route('/favorite/planet/<int:planet_id>', methods=['DELETE'])
+def delete_fav_planet(planet_id):
+    try:
+        user_id = request.args.get('user_id')
+        favorite_to_delete = Favorites.query.filter_by(user_id=user_id, planet_id=planet_id).first()
+        
+        if favorite_to_delete:
+            db.session.delete(favorite_to_delete)
+            db.session.commit()
+            return jsonify({"message": "Favorite Planet deleted"}), 200
+        else:
+            return jsonify({"message": "Favorite Planet not found"}), 404
+    
+    except Exception as e:
+            print(str(e))
+            return jsonify({"message": "Server error"}), 500
+
+@app.route('/favorite/people/<int:people_id>', methods=['DELETE'])
+def delete_fav_people(people_id):
+    try:
+        user_id = request.args.get('user_id')
+        favorite_to_delete = Favorites.query.filter_by(user_id=user_id, people_id=people_id).first()
+        
+        if favorite_to_delete:
+            db.session.delete(favorite_to_delete)
+            db.session.commit()
+            return jsonify({"message": "Favorite People deleted"}), 200
+        else:
+            return jsonify({"message": "Favorite People not found"}), 404
+    
+    except Exception as e:
+            print(str(e))
+            return jsonify({"message": "Server error"}), 500
+
+
+@app.route('/favorite/vehicle/<int:vehicle_id>', methods=['DELETE'])
+def delete_fav_vehicle(vehicle_id):
+    try:
+        user_id = request.args.get('user_id')
+        favorite_to_delete = Favorites.query.filter_by(user_id=user_id, vehicle_id=vehicle_id).first()
+        
+        if favorite_to_delete:
+            db.session.delete(favorite_to_delete)
+            db.session.commit()
+            return jsonify({"message": "Favorite Vehicle deleted"}), 200
+        else:
+            return jsonify({"message": "Favorite Vehicle not found"}), 404
+    
+    except Exception as e:
+            print(str(e))
+            return jsonify({"message": "Server error"}), 500
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
