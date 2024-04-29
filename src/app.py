@@ -259,7 +259,228 @@ def delete_fav_vehicle(vehicle_id):
     except Exception as e:
             print(str(e))
             return jsonify({"message": "Server error"}), 500
+
+
+@app.route('/create/planet/', methods=['POST'])
+def create_planet():
+    try:
+        data = request.json
+        
+        if 'name' not in data:
+            return jsonify({"message": "Missing required field: name"}), 400
+        
+        new_planet = Planets(
+            name=data.get('name'),
+            gravity=data.get('gravity'),
+            population=data.get('population'),
+            climate=data.get('climate'),
+            diameter=data.get('diameter')
+        )
+
+        db.session.add(new_planet)
+        db.session.commit()
+
+        return jsonify({"message": "Planet created successfully", "planet": new_planet.serialize()}), 201
+    
+    except Exception as e:
+        print(str(e))
+        return jsonify({"message": "Failed to create planet", "error": str(e)}), 500
+
+
+@app.route('/create/people/', methods=['POST'])
+def create_people():
+    try:
+        data = request.json
+
+        if 'name' not in data:
+            return jsonify({"message": "Missing required field: name"}), 400  
+
+        new_people = People(
+            name=data['name'],
+            eye_color=data.get('eye_color'),
+            height=data.get('height'),
+            skin_color=data.get('skin_color'),
+            gender=data.get('gender')
+        )
+
+        db.session.add(new_people)
+        db.session.commit()
+
+        return jsonify({"message": "People created successfully", "People": new_people.serialize()}), 201  
+    
+    except Exception as e:
+        print(str(e))
+        return jsonify({"message": "Failed to create People", "error": str(e)}), 500  
+
+
+@app.route('/create/vehicle/', methods=['POST'])
+def create_vehicle():
+    try:
+        data = request.json
+
+        if 'name' not in data:
+            return jsonify({"message": "Missing required field: name"}), 400  
+
+        new_vehicle = Vehicles(
+            name=data['name'],
+            model=data.get('model'),
+            passengers=data.get('passengers'),
+            cost_in_credits=data.get('cost_in_credits'),
+            crew=data.get('crew'),
+            length=data.get('length')
+        )
+
+        db.session.add(new_vehicle)
+        db.session.commit()
+
+        return jsonify({"message": "Vehicle created successfully", "Vehicle": new_vehicle.serialize()}), 201
+    
+    except Exception as e:
+        print(str(e))
+        return jsonify({"message": "Failed to create Vehicle", "error": str(e)}), 500 
+
+
+@app.route('/update/people/<int:people_id>', methods=['PUT'])
+def update_person(people_id):
+    try:
+        data = request.json
+        person = People.query.get(people_id)
+
+        if person is None:
+            return jsonify({'message': 'Person not found'}), 404  
+
+        if 'name' in data:
+            person.name = data['name']
+        if 'eye_color' in data:
+            person.eye_color = data['eye_color']
+        if 'height' in data:
+            person.height = data['height']
+        if 'skin_color' in data:
+            person.skin_color = data['skin_color']
+        if 'gender' in data:
+            person.gender = data['gender']
+
+        db.session.commit()
+
+        return jsonify({'message': 'Person updated successfully'}), 200  
+    except Exception as e:
+        print(str(e))
+        return jsonify({'message': 'Server error'}), 500  
+
+
+
+@app.route('/update/planet/<int:planet_id>', methods=['PUT'])
+def update_planet(planet_id):
+    try:
+        data = request.json
+        planet = Planets.query.get(planet_id)
+
+        if planet is None:
+            return jsonify({'message': 'Planet not found'}), 404  
+
+        if 'name' in data:
+            planet.name = data['name']
+        if 'gravity' in data:
+            planet.gravity = data['gravity']
+        if 'population' in data:
+            planet.population = data['population']
+        if 'climate' in data:
+            planet.climate = data['climate']
+        if 'diameter' in data:
+            planet.diameter = data['diameter']
+
+        db.session.commit()
+
+        return jsonify({'message': 'Planet updated successfully'}), 200  
+    except Exception as e:
+        print(str(e))
+        return jsonify({'message': 'Server error'}), 500
+
+
+@app.route('/update/vehicle/<int:vehicle_id>', methods=['PUT'])
+def update_vehicle(vehicle_id):
+    try:
+        data = request.json
+        vehicle = Vehicles.query.get(vehicle_id)
+
+        if vehicle is None:
+            return jsonify({'message': 'Vehicle not found'}), 404  
+
+        if 'name' in data:
+            vehicle.name = data['name']
+        if 'model' in data:
+            vehicle.model = data['model']
+        if 'passengers' in data:
+            vehicle.passengers = data['passengers']
+        if 'cost_in_credits' in data:
+            vehicle.cost_in_credits = data['cost_in_credits']
+        if 'crew' in data:
+            vehicle.crew = data['crew']
+        if 'length' in data:
+            vehicle.length = data['length']
+
+        db.session.commit()
+
+        return jsonify({'message': 'Vehicle updated successfully'}), 200  
+    except Exception as e:
+        print(str(e))
+        return jsonify({'message': 'Server error'}), 500
+
+@app.route('/delete/people/<int:people_id>', methods=['DELETE'])
+def delete_person(people_id):
+    try:
+        person = People.query.get(people_id)
+
+        if person is None:
+            return jsonify({'message': 'Person not found'}), 404  
+
+        db.session.delete(person)
+        db.session.commit()
+
+        return jsonify({'message': 'Person deleted successfully'}), 200  
+    except Exception as e:
+        print(str(e))
+        return jsonify({'message': 'Server error'}), 500  
+
+
+@app.route('/delete/planet/<int:planet_id>', methods=['DELETE'])
+def delete_planet(planet_id):
+    try:
+        planet = Planets.query.get(planet_id)
+
+        if planet is None:
+            return jsonify({'message': 'Planet not found'}), 404  
+
+        db.session.delete(planet)
+        db.session.commit()
+
+        return jsonify({'message': 'Planet deleted successfully'}), 200  
+    except Exception as e:
+        print(str(e))
+        return jsonify({'message': 'Server error'}), 500 
+
+
+@app.route('/delete/vehicle/<int:vehicle_id>', methods=['DELETE'])
+def delete_vehicle(vehicle_id):
+    try:
+        vehicle = Vehicles.query.get(vehicle_id)
+
+        if vehicle is None:
+            return jsonify({'message': 'Vehicle not found'}), 404  
+
+        db.session.delete(vehicle)
+        db.session.commit()
+
+        return jsonify({'message': 'Vehicle deleted successfully'}), 200  
+    except Exception as e:
+        print(str(e))
+        return jsonify({'message': 'Server error'}), 500
+
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=False)
+
+
+
+

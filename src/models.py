@@ -87,7 +87,6 @@ class Vehicles(db.Model):
             "cost_in_credits": self.cost_in_credits,
             "crew": self.crew,
             "length": self.length
-
           }
 
 class Favorites(db.Model):
